@@ -5,11 +5,11 @@ const TORRENTS_DIR = path.join(__dirname, '../torrents');
 const OUTPUT_FILE = path.join(__dirname, '../torrents.json');
 
 async function buildCatalog() {
-  // Динамічний імпорт parse-torrent для підтримки ES Modules
-  const parseTorrent = (await import('parse-torrent')).default;
+  // Динамічно імпортуємо parse-torrent для підтримки ES Modules
+  const { default: parseTorrent } = await import('parse-torrent');
 
   if (!fs.existsSync(TORRENTS_DIR)) {
-    fs.mkdirSync(TORRENTS_DIR);
+    fs.mkdirSync(TORRENTS_DIR, { recursive: true });
   }
 
   const files = fs.readdirSync(TORRENTS_DIR).filter(f => f.toLowerCase().endsWith('.torrent'));
@@ -25,7 +25,7 @@ async function buildCatalog() {
       // Формування Magnet-посилання
       const magnetURI = `magnet:?xt=urn:btih:${parsed.infoHash}&dn=${encodeURIComponent(parsed.name || file)}`;
 
-      // Розрахунок розміру
+      // Форматування розміру файлу
       let sizeFormatted = 'N/A';
       if (parsed.length) {
         const sizeMB = parsed.length / (1024 * 1024);
@@ -45,7 +45,7 @@ async function buildCatalog() {
       
       console.log(`Успішно оброблено: ${file}`);
     } catch (err) {
-      console.error(`Помилка читання ${file}:`, err.message);
+      console.error(`Помилка читання файлу ${file}:`, err.message);
     }
   }
 
