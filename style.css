@@ -1,0 +1,158 @@
+:root {
+  --bg-color: #0f172a;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --card-hover: #475569;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-color: #38bdf8;
+  --accent-hover: #0284c7;
+  --seed-color: #22c55e;
+  --peer-color: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Шапка сайту */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  color: var(--accent-color);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  color: var(--text-muted);
+}
+
+/* Поле пошуку */
+.search-box {
+  margin-bottom: 2rem;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.85rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* Список торентів */
+.torrent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Картка торента */
+.torrent-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 1.25rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.torrent-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--card-hover);
+}
+
+.info h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-main);
+}
+
+/* Мета-дані (розмір, категорія, дати) */
+.meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.meta span {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* Стилізація Сидів та Пирів */
+.seeds {
+  color: var(--seed-color);
+  font-weight: 600;
+}
+
+.peers {
+  color: var(--peer-color);
+  font-weight: 600;
+}
+
+/* Кнопка завантаження Magnet */
+.btn-magnet {
+  background: var(--accent-color);
+  color: #0f172a;
+  font-weight: 700;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.btn-magnet:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+/* Адаптивність для смартфонів */
+@media (max-width: 640px) {
+  body {
+    padding: 1rem 0.75rem;
+  }
+
+  .torrent-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-magnet {
+    width: 100%;
+    text-align: center;
+  }
+}

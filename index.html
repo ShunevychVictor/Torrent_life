@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Torrent Indexer</title>
+  
+  <!-- Підключення стилів зі style.css -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>⚡ Open Torrent Catalog</h1>
+    <p>Автоматична база даних торентів на GitHub</p>
+  </header>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Пошук торента за назвою...">
+  </div>
+
+  <div class="torrent-list" id="torrentList">
+    <p>Завантаження бази даних...</p>
+  </div>
+
+  <script>
+    let torrentsData = [];
+
+    // Завантаження згенерованого JSON-файлу
+    async function loadTorrents() {
+      try {
+        const response = await fetch('torrents.json');
+        if (!response.ok) {
+          throw new Error('Файл torrents.json не знайдено');
+        }
+        torrentsData = await response.json();
+        renderTorrents(torrentsData);
+      } catch (error) {
+        document.getElementById('torrentList').innerHTML = 
+          '<p style="text-align: center; color: #ef4444;">База даних порожня або ще не створена. Додайте перший .torrent файл у папку <b>torrents/</b>.</p>';
+      }
+    }
+
+    // Рендеринг списку торентів
+    function renderTorrents(list) {
+      const container = document.getElementById('torrentList');
+      
+      if (!list || list.length === 0) {
+        container.innerHTML = '<p style="text-align: center;">За вашим запитом нічого не знайдено.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div class="torrent-card">
+          <div class="info">
+            <h3>${item.title}</h3>
+            <div class="meta">
+              <span>💾 ${item.size}</span>
+              <span>📅 ${item.date}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            ${item.fileUrl ? `<a href="${item.fileUrl}" class="btn-torrent" download style="background: #334155; color: #fff; padding: 0.65rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600;">.torrent</a>` : ''}
+            <a href="${item.magnet}" class="btn-magnet">Magnet</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Пошук у реальному часі
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = torrentsData.filter(item => 
+        item.title.toLowerCase().includes(query)
+      );
+      renderTorrents(filtered);
+    });
+
+    // Запуск завантаження при відкритті сторінки
+    loadTorrents();
+  </script>
+
+</body>
+</html>
