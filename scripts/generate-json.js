@@ -5,11 +5,21 @@ const TORRENTS_DIR = path.join(__dirname, '../torrents');
 const OUTPUT_FILE = path.join(__dirname, '../torrents.json');
 
 async function buildCatalog() {
-  // Динамічно імпортуємо parse-torrent для підтримки ES Modules
   const { default: parseTorrent } = await import('parse-torrent');
 
   if (!fs.existsSync(TORRENTS_DIR)) {
     fs.mkdirSync(TORRENTS_DIR, { recursive: true });
+  }
+
+  // Зчитуємо старий JSON, щоб зберегти дати додавання
+  let existingCatalogMap = new Map();
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      const oldData = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
+      oldData.forEach(item => existingCatalogMap.set(item.id, item.date));
+    } catch (e) {
+      console.log('Старий torrents.json відсутній або пошкоджений, створюємо новий');
+    }
   }
 
   const files = fs.readdirSync(TORRENTS_DIR).filter(f => f.toLowerCase().endsWith('.torrent'));
@@ -21,11 +31,8 @@ async function buildCatalog() {
 
     try {
       const parsed = await parseTorrent(buf);
-      
-      // Формування Magnet-посилання
       const magnetURI = `magnet:?xt=urn:btih:${parsed.infoHash}&dn=${encodeURIComponent(parsed.name || file)}`;
 
-      // Форматування розміру файлу
       let sizeFormatted = 'N/A';
       if (parsed.length) {
         const sizeMB = parsed.length / (1024 * 1024);
@@ -34,26 +41,30 @@ async function buildCatalog() {
           : sizeMB.toFixed(1) + ' MB';
       }
 
+      // Якщо торент вже був у базі, зберігаємо його дату, інакше — ставимо дату файла або сьогоднішню
+      const stats = fs.statSync(filePath);
+      const fileDate = stats.mtime.toISOString().split('T')[0];
+      const existingDate = existingCatalogMap.get(parsed.infoHash);
+
       catalog.push({
         id: parsed.infoHash,
         title: parsed.name || file.replace(/\.torrent$/i, ''),
         size: sizeFormatted,
-        date: new Date().toISOString().split('T')[0],
+        date: existingDate || fileDate, // <--- Зберігає старанну дату
         magnet: magnetURI,
         fileUrl: `torrents/${encodeURIComponent(file)}`
       });
       
-      console.log(`Успішно оброблено: ${file}`);
     } catch (err) {
       console.error(`Помилка читання файлу ${file}:`, err.message);
     }
   }
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(catalog, null, 2));
-  console.log(`Всього додано торентів у базу: ${catalog.length}`);
+  console.log(`Базу оновлено! Всього торентів: ${catalog.length}`);
 }
 
 buildCatalog().catch(err => {
-  console.error('Критична помилка виконання:', err);
+  console.error('Критична помилка:', err);
   process.exit(1);
 });
